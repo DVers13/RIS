@@ -13,29 +13,37 @@ class DoubleLift:
         self.current_positions = current_positions
         self.max_home_floor = max_home_floor
         self.direction = Direction.static
+        self.generate_automat()
 
-    def run(self, origin, target, direction):
-        self.active_lift = None
-        self.direction = direction
-        if abs(self.current_positions[0] - origin) <= abs(self.current_positions[1] - origin):
-            self.active_lift = 0
-        else:
-            self.active_lift = 1
+    def generate_automat(self):
+        self.automat = {
+            (i, j): {
+                'active_lift': lambda x, pos: 0 if abs(x - pos[0]) <= abs(x - pos[1]) else 1,
+                'direction': lambda x: Direction.up if (self.current_positions[self.active_lift] - x) < 0 else Direction.down,
+                'action': lambda d, t: self.move_up(t) if d in [Direction.up, Direction.static] else self.move_down(t)            }
+            for i in range(1, self.max_home_floor + 1)
+            for j in range(1, self.max_home_floor + 1)
+        }
+
+    def run(self, origin, target):
+        self.active_lift = self.automat[tuple(self.current_positions)]['active_lift'](origin, self.current_positions)
+
         print(f'Лифт {self.active_lift + 1} принял команду')
-        direction_to_origin = Direction.up if (
-            self.current_positions[self.active_lift] - origin) < 0 else Direction.down
-        if direction_to_origin in [Direction.up, Direction.static]:
-            self.move_up(origin)
-        else:
-            self.move_down(origin)
+
+        direction_to_origin = self.automat[tuple(self.current_positions)]['direction'](origin)
+
+        self.automat[tuple(self.current_positions)]['action'](direction_to_origin, origin)
+
         self.open_close(True)
-        if self.direction in [Direction.up, Direction.static]:
-            self.move_up(target)
-        else:
-            self.move_down(target)
+
+        direction_to_target = self.automat[tuple(self.current_positions)]['direction'](target)
+
+        self.automat[tuple(self.current_positions)]['action'](direction_to_target, target)
+
         self.open_close(False)
         print(f'Лифт {self.active_lift + 1} ожидает')
-
+        print(self.current_positions)
+        
     def move_up(self, trg):
         while self.current_positions[self.active_lift] != trg:
             self.current_positions[self.active_lift] += 1
