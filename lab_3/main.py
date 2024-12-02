@@ -9,3 +9,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# https://gitlab.com/denisLonskii/is-lab-2/-/blob/main/РИС_ЛР_2.ipynb?ref_type=heads

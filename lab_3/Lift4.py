@@ -62,10 +62,12 @@ def generate_automat():
 
 
 max_floor = 20
-lift_1, lift_2 = Lift(1, 'first'), Lift(1, 'second')
+lift_1, lift_2 = Lift(21, 'first'), Lift(1, 'second')
 automat = generate_automat()
 
 queue = [(1, 2), (1, 5), (4, 9), (10, 1)]
+
+
 
 
 while queue:
